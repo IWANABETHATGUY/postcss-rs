@@ -77,6 +77,9 @@ pub struct Tokenizer<'a> {
   rope: Option<ropey::Rope>,
 }
 
+use packed_simd::u8x4;
+const mask: u8x4 = u8x4::new(SPACE as u8, NEWLINE as u8, TAB as u8, FEED as u8);
+
 impl<'a> Tokenizer<'a> {
   pub fn new(source_code: &'a str, ignore_errors: bool) -> Tokenizer<'a> {
     let length = source_code.len();
@@ -117,7 +120,6 @@ impl<'a> Tokenizer<'a> {
   fn pos_plus_one(&self) {
     self.pos.replace_with(|it| *it + 1);
   }
-
   pub fn next_token(&self, ignore_unclosed: bool) -> Token<'a> {
     if !self.returned.borrow().is_empty() {
       return self.returned.borrow_mut().pop().unwrap();
@@ -129,15 +131,12 @@ impl<'a> Tokenizer<'a> {
 
     match code {
       NEWLINE | SPACE | TAB | CR | FEED => {
-        let mut next = self.position();
-        loop {
+        let mut next = self.position() + 1;
+        let mut current =  u8x4::splat(char_code_at(self.css, next) as u8);
+        while current.eq(mask).any() {
           next += 1;
-          code = char_code_at(self.css, next);
-          if !(code == SPACE || code == NEWLINE || code == TAB || code == FEED) {
-            break;
-          }
+          current = u8x4::splat(char_code_at(self.css, next) as u8);
         }
-
         current_token = Token(
           TokenType::Space,
           self.css[self.position()..next].into(),
