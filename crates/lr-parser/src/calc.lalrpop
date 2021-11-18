@@ -1,0 +1,23 @@
+use tokenizer::Tokenizer;
+
+grammar<'source>;
+
+
+extern {
+  type Location = usize;
+  type Error = CompilationError;
+  enum lex::Token<'source> {
+    "true"  => lex::Token::True,
+    "false" => lex::Token::False,
+    "null"  => lex::Token::Null,
+    ","	    => lex::Token::Comma,
+    ":"	    => lex::Token::Colon,
+    "{"	    => lex::Token::LBrace,
+    "}"	    => lex::Token::RBrace,
+    "["	    => lex::Token::LBrack,
+    "]"	    => lex::Token::RBrack,
+    string => lex::Token::String(<&'source str>),
+    number  => lex::Token::Number(<&'source str>),
+    missing_quote => lex::Token::MissingEndQuote(<&'source str>),
+  }
+}
