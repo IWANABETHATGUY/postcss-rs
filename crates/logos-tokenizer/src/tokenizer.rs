@@ -33,46 +33,60 @@ static FINDER_END_OF_COMMENT: Lazy<Finder<'static>> = Lazy::new(|| Finder::new("
 
 use logos::Logos;
 
-#[derive(Debug, Clone, Eq, PartialEq, Copy)]
+#[derive(Debug, Clone, Eq, PartialEq, Copy, Logos)]
 pub enum TokenType {
+  #[token("(")]
   OpenParentheses,
+  #[token(")")]
   CloseParentheses,
+  #[regex(r"[ \t\n\f]+")]
   Space,
-  Word,
-  String,
+
+  // Word,
+  // #[regex(r#""([ -!#-\[\]-\x{10ffff}]|([\\](["\\/bfnrt]|[u][[:word:]][[:xdigit:]][[:xdigit:]][[:xdigit:]])))*""#)]
+  // String,
+  #[token("[")]
   OpenSquare,
+  #[token("]")]
   CloseSquare,
+  #[token("{")]
   OpenCurly,
+  #[token("}")]
   CloseCurly,
+  #[token(";")]
   Semicolon,
+  #[token(":")]
   Colon,
+  #[regex(r#"/\*([^*]|(\*+[^*/]))*\*+/"#)]
   Comment,
-  AtWord,
-  Brackets,
+
+  // AtWord,
+
+  #[error]
   Unknown,
 }
 
-impl std::fmt::Display for TokenType {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    match self {
-      TokenType::OpenParentheses => write!(f, "("),
-      TokenType::CloseParentheses => write!(f, ")"),
-      TokenType::Space => write!(f, "space"),
-      TokenType::Word => write!(f, "word"),
-      TokenType::String => write!(f, "string"),
-      TokenType::OpenSquare => write!(f, "["),
-      TokenType::CloseSquare => write!(f, "]"),
-      TokenType::OpenCurly => write!(f, "{{"),
-      TokenType::CloseCurly => write!(f, "}}"),
-      TokenType::Semicolon => write!(f, ";"),
-      TokenType::Colon => write!(f, ":"),
-      TokenType::Comment => write!(f, "comment"),
-      TokenType::AtWord => write!(f, "atword"),
-      TokenType::Brackets => write!(f, "brackets"),
-      TokenType::Unknown => write!(f, "unknown"),
-    }
-  }
-}
+// impl std::fmt::Display for TokenType {
+//   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//     match self {
+//       TokenType::OpenParentheses => write!(f, "("),
+//       TokenType::CloseParentheses => write!(f, ")"),
+//       TokenType::Space => write!(f, "space"),
+//       TokenType::Word => write!(f, "word"),
+//       TokenType::String => write!(f, "string"),
+//       TokenType::OpenSquare => write!(f, "["),
+//       TokenType::CloseSquare => write!(f, "]"),
+//       TokenType::OpenCurly => write!(f, "{{"),
+//       TokenType::CloseCurly => write!(f, "}}"),
+//       TokenType::Semicolon => write!(f, ";"),
+//       TokenType::Colon => write!(f, ":"),
+//       TokenType::Comment => write!(f, "comment"),
+//       TokenType::AtWord => write!(f, "atword"),
+//       // TokenType::Brackets => write!(f, "brackets"),
+//       TokenType::Unknown => write!(f, "unknown"),
+//     }
+//   }
+// }
 
 // #[derive(Debug, Clone, Eq, PartialEq)]
 // /// quarter nary tuple (token_type, content, start_offset, end_offset), content is a slice with range `start_offset..end_offset`
